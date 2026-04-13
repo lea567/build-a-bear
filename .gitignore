@@ -1,0 +1,13 @@
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+frontend/build/
+backend/.env
+backend/uploads/audio/*.webm
+backend/uploads/audio/*.wav
+backend/uploads/audio/*.mp3
+backend/uploads/images/*.png
+backend/uploads/images/*.jpg
+.DS_Store
+*.log
+npm-debug.log*
