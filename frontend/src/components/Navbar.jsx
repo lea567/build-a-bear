@@ -69,7 +69,7 @@ export default function Navbar() {
               </button>
             ))}
             <button className="mobile-link" onClick={() => navigate('/cart')}>
-              🛒 Cart {cart.length > 0 ? `(${cart.length})` : ''}
+              Cart {cart.length > 0 ? `(${cart.length})` : ''}
             </button>
           </motion.div>
         )}

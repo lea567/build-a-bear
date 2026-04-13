@@ -12,14 +12,9 @@ export default function Footer() {
       </div>
       <div className="footer-inner">
         <div className="footer-brand">
-          <span style={{ fontSize: 36 }}>🐻</span>
+          <span style={{ fontSize: 36 }}></span>
           <h3>Build-A-Bear</h3>
           <p>Build, dress, name, and love a one-of-a-kind furry friend. Every bear is uniquely yours.</p>
-          <div className="footer-social">
-            {['📘','📸','🎵','🐦'].map((s,i) => (
-              <button key={i} className="social-btn">{s}</button>
-            ))}
-          </div>
         </div>
         <div className="footer-col">
           <h4>Shop</h4>
