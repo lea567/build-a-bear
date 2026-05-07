@@ -36,7 +36,7 @@ export const BOTTOMS = [
 ];
 
 // ─── DRESSES ──────────────────────────────────────────────────────────────────
-export const DRESSES = [
+export const DRESSES =  [
   { id: 'none_dress',    name: 'No Dress',            price: 0,  category: 'dresses', image: null },
   { id: 'duckiedress',   name: 'Duckie Dress',        price: 14, category: 'dresses', image: '/assets/clothes/dresses/duckiedress.png' },
   { id: 'princessdress', name: 'Princess Dress',      price: 16, category: 'dresses', image: '/assets/clothes/dresses/princessdress.png' },
