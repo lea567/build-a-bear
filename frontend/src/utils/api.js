@@ -58,3 +58,29 @@ export async function uploadImage(imageBlob) {
 }
 
 export default api;
+
+// ─── ORDERS ───────────────────────────────────────────────────────────────────
+export async function placeOrder(orderData) {
+  return api.post('/orders', orderData);
+}
+
+export async function getOrders(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return api.get(`/orders${query ? '?' + query : ''}`);
+}
+
+export async function getOrder(id) {
+  return api.get(`/orders/${id}`);
+}
+
+export async function updateOrderStatus(id, status, adminNote, trackingNumber) {
+  return api.patch(`/orders/${id}/status`, { status, adminNote, trackingNumber });
+}
+
+export async function deleteOrder(id) {
+  return api.delete(`/orders/${id}`);
+}
+
+export async function getOrderStats() {
+  return api.get('/orders/stats');
+}
