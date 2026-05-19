@@ -5,8 +5,8 @@ const config = {
   server: process.env.DB_SERVER || 'localhost',
   port: parseInt(process.env.DB_PORT) || 1433,
   database: process.env.DB_NAME || 'BearCreatorDB',
-  user: process.env.DB_USER || 'sa',
-  password: process.env.DB_PASSWORD || '',
+  user: process.env.DB_USER || 'myappuser',
+  password: process.env.DB_PASSWORD || 'StrongPassword123!',
   options: {
     encrypt: process.env.DB_ENCRYPT === 'true',
     trustServerCertificate: process.env.DB_TRUST_CERT !== 'false',
