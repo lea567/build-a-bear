@@ -11,6 +11,7 @@ import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
 import CartPage from './pages/CartPage';
 import ReadyMadePage from './pages/ReadyMadePage';
+import AdminPage from './pages/AdminPage';
 import { BEAR_TYPES, TOPS, BOTTOMS, DRESSES, OVERALLS, HATS, ACCESSORIES, SHOES } from './data/catalog';
 import { saveBear, getBears, uploadAudio, uploadImage, addToCart } from './utils/api';
 import { useVoiceRecorder } from './hooks/useVoiceRecorder';
@@ -399,6 +400,7 @@ function AppLayout() {
         <Route path="/build"     element={<BuildPage />} />
         <Route path="/cart"      element={<CartPage />} />
         <Route path="/ready-made" element={<ReadyMadePage />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
       <Footer />
     </>
