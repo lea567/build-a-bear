@@ -108,8 +108,16 @@ function VoicePanel({ onSaved }) {
         )}
         {audioBlob && !isRecording && (
           <>
-            <audio ref={audioRef} src={audioUrl} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} />
-            <motion.button className="btn-play" onClick={() => isPlaying ? audioRef.current.pause() : audioRef.current.play()} whileHover={{ scale: 1.04 }}>
+            <audio ref={audioRef} src={audioUrl} onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} onEnded={() => { setIsPlaying(false); }} />
+            <motion.button className="btn-play" onClick={() => {
+              if (!audioRef.current) return;
+              if (isPlaying) {
+                audioRef.current.pause();
+              } else {
+                audioRef.current.load();
+                audioRef.current.play().catch(e => console.error('Play error:', e));
+              }
+            }} whileHover={{ scale: 1.04 }}>
               {isPlaying ? '⏸ Pause' : '▶ Preview'}
             </motion.button>
             <motion.button className="btn-upload" onClick={handleSave} disabled={uploading} whileHover={{ scale: 1.04 }}>
@@ -192,7 +200,12 @@ function BearCustomizer() {
     try {
       const res = await saveBear({ name: config.name || 'My Bear', bearType: config.bearType, bearColor: '#C4956A', config, audioFile: savedAudioFilename, totalPrice });
       await addToCart(res.bear.id);
-      setCart([...cart, { ...res.bear, total_price: totalPrice, quantity: 1 }]);
+      setCart([...cart, { 
+        ...res.bear, 
+        total_price: totalPrice, 
+        quantity: 1,
+        audio_file: savedAudioFilename || res.bear.audioFile || null,
+      }]);
       toast.success('Added to cart! 🛒');
     } catch { toast.error('Could not add to cart'); }
     finally { setIsSaving(false); }

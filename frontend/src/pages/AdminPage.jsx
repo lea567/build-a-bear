@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getOrders, getOrderStats, updateOrderStatus, deleteOrder } from '../utils/api';
+import { getOrders, getOrderStats, updateOrderStatus, deleteOrder, getOrder } from '../utils/api';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -80,8 +80,26 @@ function AudioPlayer({ src, label }) {
 // ─── Order Detail Modal ───────────────────────────────────────────────────────
 function OrderModal({ order, onClose, onStatusChange }) {
   const [trackingNum, setTrackingNum] = useState(order.tracking_number || '');
-  const [adminNote, setAdminNote] = useState(order.admin_note || '');
-  const [updating, setUpdating] = useState(false);
+  const [adminNote, setAdminNote]     = useState(order.admin_note || '');
+  const [updating, setUpdating]       = useState(false);
+  const [detail, setDetail]           = useState(null); // full order with items
+
+  // Load full order detail (items + audio) when modal opens
+  useEffect(() => {
+    getOrder(order.id)
+      .then(res => setDetail(res))
+      .catch(err => console.error('Detail load error:', err));
+  }, [order.id]);
+
+  // Resolve audio from detail or from order directly
+  const audioFile = detail?.order?.resolved_audio
+    || detail?.order?.voice_url
+    || detail?.order?.bear_audio_file
+    || order.voice_url
+    || order.has_audio
+    || null;
+
+  const items = detail?.items || [];
 
   const advance = async () => {
     const next = STATUS[order.status]?.next;
@@ -156,10 +174,10 @@ function OrderModal({ order, onClose, onStatusChange }) {
             {/* Order financials */}
             <div className="admin-info-card">
               <h4>💰 Financials</h4>
-              <div className="info-row"><span>Subtotal</span><strong>${Number(order.subtotal).toFixed(2)}</strong></div>
-              {Number(order.discount) > 0 && <div className="info-row discount"><span>Discount</span><strong>−${Number(order.discount).toFixed(2)}</strong></div>}
-              <div className="info-row"><span>Shipping</span><strong>${Number(order.shipping_price).toFixed(2)}</strong></div>
-              <div className="info-row total"><span>Total</span><strong>${Number(order.total).toFixed(2)}</strong></div>
+              <div className="info-row"><span>Subtotal</span><strong>${Number(order.subtotal || 0).toFixed(2)}</strong></div>
+              {Number(order.discount) > 0 && <div className="info-row discount"><span>Discount</span><strong>−${Number(order.discount || 0).toFixed(2)}</strong></div>}
+              <div className="info-row"><span>Shipping</span><strong>${Number(order.shipping_price || 0).toFixed(2)}</strong></div>
+              <div className="info-row total"><span>Total</span><strong>${Number(order.total || order.total_amount || 0).toFixed(2)}</strong></div>
               {order.promo_code && <div className="info-row"><span>Promo</span><strong>{order.promo_code}</strong></div>}
             </div>
 
@@ -167,9 +185,9 @@ function OrderModal({ order, onClose, onStatusChange }) {
             <div className="admin-info-card wide">
               <h4>🧸 Items ({order.item_count || '?'})</h4>
               <p style={{ fontSize:'0.85rem', color:'#666' }}>{order.item_names || 'Items listed below'}</p>
-              {order.has_audio && (
+              {(order.voice_url || order.has_audio) && (
                 <div style={{ marginTop:12 }}>
-                  <AudioPlayer src={`${API_URL}/uploads/audio/${order.has_audio}`} label="Voice message" />
+                  <AudioPlayer src={`${API_URL}/uploads/audio/${order.voice_url || order.has_audio}`} label="Customer voice message" />
                 </div>
               )}
               {order.gift_message && (
@@ -353,8 +371,8 @@ export default function AdminPage() {
                       transition={{ delay: i*0.03 }}>
                       <div className="order-number-cell">
                         <strong>{order.order_number}</strong>
-                        {order.has_audio && <span className="voice-indicator" title="Has voice message">🎤</span>}
-                        {order.gift_message && <span className="voice-indicator" title="Gift order">🎁</span>}
+                        {(order.voice_url || order.has_audio) && <span className="voice-indicator" title="Has voice message">🎤</span>}
+                        
                       </div>
                       <div className="order-customer-cell">
                         <div>{order.customer_name}</div>
@@ -367,7 +385,7 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div className="order-total-cell">
-                        <strong>${Number(order.total).toFixed(2)}</strong>
+                        <strong>${Number(order.total || order.total_amount || 0).toFixed(2)}</strong>
                       </div>
                       <div><StatusBadge status={order.status} /></div>
                       <div className="order-date-cell">

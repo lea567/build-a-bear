@@ -53,33 +53,27 @@ async function initializeDatabase() {
     )
   `);
 
-  // Orders table — full order lifecycle
-  await p.request().query(`
-    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Orders' AND xtype='U')
-    CREATE TABLE Orders (
-      id VARCHAR(36) PRIMARY KEY,
-      order_number NVARCHAR(20) NOT NULL,
-      customer_name NVARCHAR(200) NOT NULL,
-      customer_email NVARCHAR(200) NOT NULL,
-      customer_phone NVARCHAR(50) NULL,
-      shipping_address NVARCHAR(500) NOT NULL,
-      shipping_city NVARCHAR(100) NOT NULL,
-      shipping_zip NVARCHAR(20) NOT NULL,
-      shipping_country NVARCHAR(100) NOT NULL DEFAULT 'Lebanon',
-      shipping_method NVARCHAR(50) NOT NULL DEFAULT 'standard',
-      shipping_price DECIMAL(10,2) NOT NULL DEFAULT 4.99,
-      subtotal DECIMAL(10,2) NOT NULL DEFAULT 0,
-      discount DECIMAL(10,2) NOT NULL DEFAULT 0,
-      total DECIMAL(10,2) NOT NULL DEFAULT 0,
-      promo_code NVARCHAR(50) NULL,
-      gift_message NVARCHAR(500) NULL,
-      status NVARCHAR(50) NOT NULL DEFAULT 'pending',
-      admin_note NVARCHAR(1000) NULL,
-      tracking_number NVARCHAR(200) NULL,
-      created_at DATETIME2 DEFAULT GETDATE(),
-      updated_at DATETIME2 DEFAULT GETDATE()
-    )
-  `);
+  // Orders table already exists in your DB — just add missing columns if needed
+  try {
+    await p.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Orders' AND COLUMN_NAME='admin_note')
+        ALTER TABLE Orders ADD admin_note NVARCHAR(1000) NULL
+    `);
+    await p.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Orders' AND COLUMN_NAME='tracking_number')
+        ALTER TABLE Orders ADD tracking_number NVARCHAR(200) NULL
+    `);
+    await p.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Orders' AND COLUMN_NAME='updated_at')
+        ALTER TABLE Orders ADD updated_at DATETIME2 DEFAULT GETDATE()
+    `);
+    await p.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Orders' AND COLUMN_NAME='order_number')
+        ALTER TABLE Orders ADD order_number NVARCHAR(50) NULL
+    `);
+  } catch (e) {
+    console.warn('Orders column migration skipped:', e.message);
+  }
 
   // OrderItems — each bear in an order
   await p.request().query(`
